@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reclaim360 Interactive Flow</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .main-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #64748b, #94a3b8, #e2e8f0);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 4s ease-in-out infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.4rem;
+            font-weight: 300;
+        }
+
+        .flow-container {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            width: 100%;
+            max-width: 1200px;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .flow-step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .flow-step:nth-child(1) { animation-delay: 0.2s; }
+        .flow-step:nth-child(2) { animation-delay: 0.4s; }
+        .flow-step:nth-child(3) { animation-delay: 0.6s; }
+        .flow-step:nth-child(4) { animation-delay: 0.8s; }
+        .flow-step:nth-child(5) { animation-delay: 1.0s; }
+        .flow-step:nth-child(6) { animation-delay: 1.2s; }
+        .flow-step:nth-child(7) { animation-delay: 1.4s; }
+        .flow-step:nth-child(8) { animation-delay: 1.6s; }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-visual {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .visual-card {
+            width: 300px;
+            height: 200px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        }
+
+        .visual-card:hover {
+            transform: scale(1.05) rotateY(5deg);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .visual-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            z-index: 1;
+        }
+
+        .step-icon {
+            font-size: 4rem;
+            z-index: 2;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.3));
+            color: white;
+        }
+
+        .step-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .step-content {
+            flex: 1.5;
+            padding: 30px;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #475569, #64748b);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 25px rgba(71, 85, 105, 0.4);
+        }
+
+        .step-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .step-description {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .step-details {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .detail-tag {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .flow-connector {
+            position: absolute;
+            width: 4px;
+            height: 60px;
+            background: linear-gradient(180deg, #64748b, #475569);
+            left: 50%;
+            transform: translateX(-50%);
+            top: -30px;
+            border-radius: 2px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+
+        .flow-step:first-child .flow-connector {
+            display: none;
+        }
+
+        /* Step-specific backgrounds */
+        .step-1 .visual-card { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .step-2 .visual-card { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .step-3 .visual-card { background: linear-gradient(135deg, #10b981, #059669); }
+        .step-4 .visual-card { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+        .step-5 .visual-card { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .step-6 .visual-card { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .step-7 .visual-card { background: linear-gradient(135deg, #64748b, #475569); }
+        .step-8 .visual-card { background: linear-gradient(135deg, #22c55e, #16a34a); }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-title { font-size: 2.5rem; }
+            .subtitle { font-size: 1.2rem; }
+            .container { padding: 20px; }
+            
+            .flow-step {
+                flex-direction: column !important;
+                gap: 20px;
+            }
+            
+            .flow-step:nth-child(even) {
+                flex-direction: column !important;
+            }
+            
+            .visual-card {
+                width: 250px;
+                height: 160px;
+            }
+            
+            .step-icon { font-size: 3rem; }
+            .step-title { font-size: 1.5rem; }
+            .step-description { font-size: 1rem; }
+            .step-content { padding: 20px; }
+        }
+
+        /* Interactive Elements */
+        .stakeholder-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            color: white;
+            z-index: 3;
+        }
+
+        .platform-highlight {
+            background: linear-gradient(135deg, #475569, #64748b) !important;
+            border: 2px solid #94a3b8;
+            animation: platformGlow 2s infinite;
+        }
+
+        @keyframes platformGlow {
+            0%, 100% { box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2); }
+            50% { box-shadow: 0 15px 35px rgba(148, 163, 184, 0.4); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="main-title">Reclaim360 Process Flow</h1>
+            <p class="subtitle">Complete transparency from incident to resolution</p>
+        </div>
+
+        <div class="flow-container">
+            <!-- Step 1: The Incident -->
+            <div class="flow-step step-1">
+                <div class="step-visual">
+                    <div class="visual-card">
+                        <div class="stakeholder-info">Homeowner</div>
+                        <div class="step-icon">⚠</div>
+                        <div class="step-label">Water Damage</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">The Incident Occurs</h3>
+                    <p class="step-description">Sarah discovers her dishwasher has leaked water all over her new kitchen floor. The wood is warping and she needs immediate help.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Emergency Situation</span>
+                        <span class="detail-tag">Property Damage</span>
+                        <span class="detail-tag">Time Sensitive</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Insurance Call -->
+            <div class="flow-step step-2">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card">
+                        <div class="stakeholder-info">Insurance</div>
+                        <div class="step-icon">☎</div>
+                        <div class="step-label">Claims Report</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Insurance Claim Filed</h3>
+                    <p class="step-description">Sarah contacts SecureHome Insurance to report the damage. The agent approves the claim and connects her with certified restoration partner.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Claim Approved</span>
+                        <span class="detail-tag">Partner Assignment</span>
+                        <span class="detail-tag">Rapid Restore</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Platform Introduction -->
+            <div class="flow-step step-3">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card platform-highlight">
+                        <div class="stakeholder-info">Reclaim360</div>
+                        <div class="step-icon">▦</div>
+                        <div class="step-label">Digital Access</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Reclaim360 Portal Access</h3>
+                    <p class="step-description">Sarah receives a secure text message with a link to her personal Reclaim360 portal - no more phone tag or waiting.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Secure Link</span>
+                        <span class="detail-tag">Personal Portal</span>
+                        <span class="detail-tag">Instant Access</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: AI Assessment -->
+            <div class="flow-step step-4">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card platform-highlight">
+                        <div class="stakeholder-info">AI Engine</div>
+                        <div class="step-icon">◉</div>
+                        <div class="step-label">Smart Analysis</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">AI-Powered Assessment</h3>
+                    <p class="step-description">Sarah uploads photos and videos. The AI instantly analyzes damage scope (50 sq ft), identifies materials affected, and provides initial assessment.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Photo Upload</span>
+                        <span class="detail-tag">Instant Analysis</span>
+                        <span class="detail-tag">Damage Scope</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 5: Admin Dashboard -->
+            <div class="flow-step step-5">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card">
+                        <div class="stakeholder-info">Admin</div>
+                        <div class="step-icon">⬛</div>
+                        <div class="step-label">Job Assignment</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">5</div>
+                    <h3 class="step-title">Smart Job Dispatch</h3>
+                    <p class="step-description">David at Rapid Restore receives the alert with photos, AI analysis, and priority level. He assigns nearby technician Mike with one click.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Real-time Alert</span>
+                        <span class="detail-tag">Priority Rating</span>
+                        <span class="detail-tag">Smart Dispatch</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Technician En Route -->
+            <div class="flow-step step-6">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card">
+                        <div class="stakeholder-info">Technician</div>
+                        <div class="step-icon">►</div>
+                        <div class="step-label">Live Tracking</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">6</div>
+                    <h3 class="step-title">Real-Time Coordination</h3>
+                    <p class="step-description">Mike receives job details on his phone. Sarah sees "Mike is on his way - 25 minutes" with live GPS tracking. No more waiting and wondering.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">GPS Tracking</span>
+                        <span class="detail-tag">ETA Updates</span>
+                        <span class="detail-tag">Job Prep</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 7: Work Progress -->
+            <div class="flow-step step-7">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card platform-highlight">
+                        <div class="stakeholder-info">Live Updates</div>
+                        <div class="step-icon">⚡</div>
+                        <div class="step-label">Progress Tracking</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">7</div>
+                    <h3 class="step-title">Live Progress Updates</h3>
+                    <p class="step-description">As Mike completes each task, Sarah receives real-time updates: "Water extraction complete" → "Drying equipment running" with photos.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Live Updates</span>
+                        <span class="detail-tag">Photo Evidence</span>
+                        <span class="detail-tag">Milestone Tracking</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 8: Completion -->
+            <div class="flow-step step-8">
+                <div class="flow-connector"></div>
+                <div class="step-visual">
+                    <div class="visual-card">
+                        <div class="stakeholder-info">Complete</div>
+                        <div class="step-icon">✓</div>
+                        <div class="step-label">Job Complete</div>
+                    </div>
+                </div>
+                <div class="step-content">
+                    <div class="step-number">8</div>
+                    <h3 class="step-title">Seamless Completion</h3>
+                    <p class="step-description">Final invoice generated, secure payment processing, all documents saved in Document Vault. Insurance, homeowner, and restoration company - all aligned.</p>
+                    <div class="step-details">
+                        <span class="detail-tag">Digital Invoice</span>
+                        <span class="detail-tag">Secure Payment</span>
+                        <span class="detail-tag">Document Vault</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
